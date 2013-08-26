@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.lang.IllegalArgumentException;
 
 public class PercolationStats {
 	/**
@@ -14,6 +15,8 @@ public class PercolationStats {
 	private double confidence;
 
 	public PercolationStats(int N, int T) {
+		if (N <= 0 || T <= 0)
+			throw new IllegalArgumentException();
 		this.t = T;
 		fractions = new double[this.t];
 		for (int i = 0; i < this.t; i++) {
@@ -33,18 +36,18 @@ public class PercolationStats {
 			percolation = null;
 			System.gc();
 		}
-		
+
 		double tmp = 0.0;
 		for (double val : this.fractions)
 			tmp += val;
 		this.mean = tmp / this.t;
-		
+
 		tmp = 0.0;
 		for (double val : this.fractions)
 			tmp += Math.pow(val - this.mean, 2);
 		this.stddev = tmp / (this.t - 1);
-		
-		confidence = (1.96*this.stddev)/Math.sqrt(this.t);
+
+		confidence = (1.96 * this.stddev) / Math.sqrt(this.t);
 	}
 
 	/**
@@ -93,10 +96,16 @@ public class PercolationStats {
 	 */
 	public static void main(String[] args) {
 
-		PercolationStats stats = new PercolationStats(200, 200);
+		System.out.println(args[0]);
+		System.out.println(args[1]);
+
+		PercolationStats stats = new PercolationStats(Integer.valueOf(args[0]),
+				Integer.valueOf(args[1]));
 		System.out.println(String.format("mean\t= %.10f", stats.mean()));
 		System.out.println(String.format("stddev\t= %.10f", stats.stddev()));
-		System.out.println(String.format("95%% confidence interval\t= %.10f, %.10f", stats.confidenceLo(),stats.confidenceHi()));
+		System.out.println(String.format(
+				"95%% confidence interval\t= %.10f, %.10f",
+				stats.confidenceLo(), stats.confidenceHi()));
 
 	}
 }
