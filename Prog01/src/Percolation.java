@@ -1,155 +1,138 @@
 public class Percolation {
 
-	private int n;
+    private int n;
+    private int top;
+    private int bottom;
+    private WeightedQuickUnionUF wqu1;
+    private WeightedQuickUnionUF wqu2;
+    private boolean[] open;
 
-	class Site {
-		boolean open;
-		boolean full;
-		Site top;
-		Site left;
-		Site bottom;
-		Site right;
+    /**
+     * create N-by-N grid, with all sites blocked
+     * 
+     * @param N
+     */
+    public Percolation(int N) {
+        n = N;
+        top = n * n;
+        bottom = n * n + 1;
+        wqu1 = new WeightedQuickUnionUF((n * n) + 2);
+        wqu2 = new WeightedQuickUnionUF((n * n) + 2);
+        open = new boolean[n * n];
+        for (int i = 0; i < open.length; i++)
+            open[i] = false;
 
-		public Site() {
-			open = false;
-		}
+    }
 
-	}
+    /**
+     * open site (row i, column j) if it is not already
+     * 
+     * @param i
+     * @param j
+     */
+    public void open(int i, int j) {
+        checkIndicesBounds(i, j);
+        int mi = i - 1;
+        int mj = j - 1;
 
-	private Site[][] grid;
-	private Site[] top;
-	private Site[] bottom;
-	private int siteSopen;
+        int self = xyToInt(mi, mj);
+        int up = xyToInt(mi - 1, mj);
+        int down = xyToInt(mi + 1, mj);
+        int left = xyToInt(mi, mj - 1);
+        int right = xyToInt(mi, mj + 1);
 
-	/**
-	 * create N-by-N grid, with all sites blocked
-	 * 
-	 * @param N
-	 */
-	public Percolation(int N) {
-		n = N;
-		grid = new Site[n][n];
-		for (int i = 0; i < n; i++)
-			for (int j = 0; j < n; j++)
-				grid[i][j] = new Site();
+        open[self] = true;
 
-		top = new Site[n];
-		for (int i = 0; i < n; i++)
-			top[i] = grid[0][i];
+        if (mi == 0) {
+            wqu1.union(self, top);
+            wqu2.union(self, top);
+        }
 
-		bottom = new Site[n];
-		for (int i = 0; i < n; i++)
-			bottom[i] = grid[n - 1][i];
+        if (mi == (n - 1))
+            wqu1.union(self, bottom);
 
-	}
+        // top
+        if (mi > 0 && open[up]) {
+            wqu1.union(self, up);
+            wqu2.union(self, up);
+        }
 
-	/**
-	 * open site (row i, column j) if it is not already
-	 * 
-	 * @param i
-	 * @param j
-	 */
-	public void open(int i, int j) {
-		
-		Site site = grid[i][j]; 
-		site.open = true;
-		
-		if (i == 0)
-			site.full = true;
+        // bottom
+        if (mi < (n - 1) && open[down]) {
+            wqu1.union(self, down);
+            wqu2.union(self, down);
+        }
 
-		// top
-		if (i > 0 && grid[i - 1][j].open) {
-			site.top = grid[i - 1][j];
-			grid[i - 1][j].bottom = site;
-			if (grid[i - 1][j].full)
-				site.full = true;
-		}
+        // left
+        if (mj > 0 && open[left]) {
+            wqu1.union(self, left);
+            wqu2.union(self, left);
+        }
 
-		// bottom
-		if (i < (n-1) && grid[i + 1][j].open) {
-			site.bottom = grid[i + 1][j];
-			grid[i + 1][j].top = site;
-			if (grid[i + 1][j].full)
-				site.full = true;
-		}
+        // right
+        if (mj < (n - 1) && open[right]) {
+            wqu1.union(self, right);
+            wqu2.union(self, right);
+        }
 
-		// left
-		if (j > 0 && grid[i][j - 1].open) {
-			site.left = grid[i][j - 1];
-			grid[i][j - 1].right = site;
-			if (grid[i][j - 1].full)
-				site.full = true;
-		}
+        /*
+         * if (isFull(i, j)) for (int x = 1; x <= n; x++) if (isOpen(n, x) &&
+         * isFull(n, x)) wqu.union(xyToInt(n - 1, x - 1), bottom);
+         */
 
-		// right
-		if (j < (n-1) && grid[i][j + 1].open) {
-			site.right = grid[i][j + 1];
-			grid[i][j + 1].left = site;
-			if (grid[i][j + 1].full)
-				site.full = true;
-		}
+    }
 
-		if(site.full){
-			fillAround(site);
-		}
-		
-		siteSopen++;
-	}
+    /**
+     * is site (row i, column j) open?
+     * 
+     * @param i
+     * @param j
+     * @return
+     */
+    public boolean isOpen(int i, int j) {
+        checkIndicesBounds(i, j);
+        return open[xyToInt(i - 1, j - 1)];
+    }
 
+    /**
+     * is site (row i, column j) full?
+     * 
+     * @param i
+     * @param j
+     * @return
+     */
+    public boolean isFull(int i, int j) {
+        checkIndicesBounds(i, j);
+        return wqu1.connected(xyToInt(i - 1, j - 1), top);
+    }
 
+    /**
+     * does the system percolate?
+     * 
+     * @return
+     */
+    public boolean percolates() {
+        return wqu1.connected(top, bottom);
+    }
 
-	private void fillAround(Site site) {
-		fillSite(site.top);
-		fillSite(site.bottom);
-		fillSite(site.left);
-		fillSite(site.right);
-		
-	}
+    /**
+     * 
+     * @param i
+     * @param j
+     * 
+     */
+    private void checkIndicesBounds(int i, int j) {
+        if (i < 1 || i > n || j < 1 || j > n)
+            throw new java.lang.IndexOutOfBoundsException();
+    }
 
-	private void fillSite(Site site) {
-		if((site != null) && !site.full){
-			site.full = true;
-			fillAround(site);
-		}
-		
-	}
-
-	/**
-	 * is site (row i, column j) open?
-	 * 
-	 * @param i
-	 * @param j
-	 * @return
-	 */
-	public boolean isOpen(int i, int j) {
-		return grid[i][j].open;
-	}
-
-	/**
-	 * is site (row i, column j) full?
-	 * 
-	 * @param i
-	 * @param j
-	 * @return
-	 */
-	public boolean isFull(int i, int j) {
-		return grid[i][j].full;
-	}
-
-	/**
-	 * does the system percolate?
-	 * 
-	 * @return
-	 */
-	public boolean percolates() {
-		for (Site site : bottom)
-			if (site.full)
-				return true;
-		return false;
-	}
-	
-	public int getSiteSopen() {
-		return siteSopen;
-	}
-
+    /**
+     * 
+     * @param i
+     * @param j
+     * 
+     */
+    private int xyToInt(int i, int j) {
+        return i * n + j;
+    }
 }
