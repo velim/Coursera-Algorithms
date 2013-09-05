@@ -2,44 +2,93 @@ import java.util.Iterator;
 
 public class Deque<Item> implements Iterable<Item> {
 
-	// construct an empty deque
-	public Deque() {
+    private Node first, last;
+    private int cnt;
 
-	}
+    private class Node {
+        Item item;
+        Node next;
+    }
 
-	// is the deque empty?
-	public boolean isEmpty() {
-		return false;
-	}
+    // construct an empty deque
+    public Deque() {
+        cnt = 0;
+    }
 
-	// return the number of items on the deque
-	public int size() {
-		return 0;
-	}
+    // is the deque empty?
+    public boolean isEmpty() {
+        return (cnt == 0);
+    }
 
-	// insert the item at the front
-	public void addFirst(Item item) {
+    // return the number of items on the deque
+    public int size() {
+        return cnt;
+    }
 
-	}
+    // insert the item at the front
+    public void addFirst(Item item) {
+        Node newnode = new Node();
+        newnode.item = item;
+        newnode.next = first;
+        if (first == null)
+            last = newnode;
+        first = newnode;
+        cnt++;
+    }
 
-	// insert the item at the end
-	public void addLast(Item item) {
+    // insert the item at the end
+    public void addLast(Item item) {
+        Node oldlast = last;
+        last = new Node();
+        last.item = item;
+        if (first == null)
+            first = last;
+        if (oldlast != null)
+            oldlast.next = last;
+        cnt++;
+    }
 
-	}
+    // delete and return the item at the front
+    public Item removeFirst() {
+        Node node = first;
+        first = first.next;
+        cnt--;
+        return node.item;
+    }
 
-	// delete and return the item at the front
-	public Item removeFirst() {
-		return null;
-	}
+    // delete and return the item at the end
+    public Item removeLast() {
+        Node node = first;
+        Item item = last.item;
+        if (first == null)
+            return null;
+        while (node.next != null && node.next.next != null)
+            node = node.next;
+        last = node;
+        last.next = null;
+        cnt--;
+        return item;
+    }
 
-	// delete and return the item at the end
-	public Item removeLast() {
-		return null;
-	}
+    // return an iterator over items in order from front to end
+    public Iterator<Item> iterator() {
+        return new Iterator<Item>() {
+            private Node current = first; 
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
 
-	// return an iterator over items in order from front to end
-	public Iterator<Item> iterator() {
-		return null;
-	}
-	
+            @Override
+            public Item next() {
+                Item item = current.item;
+                current = current.next;
+                return item;
+            }
+
+            @Override
+            public void remove() {}
+        };
+    }
+
 }
