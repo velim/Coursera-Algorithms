@@ -1,4 +1,5 @@
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
@@ -6,8 +7,8 @@ public class Deque<Item> implements Iterable<Item> {
     private int cnt;
 
     private class Node {
-        Item item;
-        Node next;
+        private Item item;
+        private Node next;
     }
 
     // construct an empty deque
@@ -50,6 +51,8 @@ public class Deque<Item> implements Iterable<Item> {
 
     // delete and return the item at the front
     public Item removeFirst() {
+        if (cnt == 0)
+            throw new NoSuchElementException();
         Node node = first;
         first = first.next;
         cnt--;
@@ -58,10 +61,10 @@ public class Deque<Item> implements Iterable<Item> {
 
     // delete and return the item at the end
     public Item removeLast() {
+        if (cnt == 0)
+            throw new NoSuchElementException();
         Node node = first;
         Item item = last.item;
-        if (first == null)
-            return null;
         while (node.next != null && node.next.next != null)
             node = node.next;
         last = node;
@@ -73,7 +76,8 @@ public class Deque<Item> implements Iterable<Item> {
     // return an iterator over items in order from front to end
     public Iterator<Item> iterator() {
         return new Iterator<Item>() {
-            private Node current = first; 
+            private Node current = first;
+
             @Override
             public boolean hasNext() {
                 return current != null;
@@ -81,13 +85,15 @@ public class Deque<Item> implements Iterable<Item> {
 
             @Override
             public Item next() {
+                if (current == null)
+                    throw new NoSuchElementException();
                 Item item = current.item;
                 current = current.next;
                 return item;
             }
 
             @Override
-            public void remove() {}
+            public void remove() { throw new UnsupportedOperationException();}
         };
     }
 

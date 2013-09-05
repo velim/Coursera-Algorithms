@@ -1,4 +1,5 @@
 
+
 public class Subset {
  
    public static void main(String[] args){
@@ -8,12 +9,11 @@ public class Subset {
        
        while(!StdIn.isEmpty()){
            // add to Deque or RandomizedQueue
-           queue.addLast(StdIn.readString());
+           queue.addFirst(StdIn.readString());
        }
        
-   
        for (int i = 0; i < k; i++){
-           System.out.println(queue.removeFirst()); 
+           System.out.println(queue.removeLast()); 
        }
        
    }
