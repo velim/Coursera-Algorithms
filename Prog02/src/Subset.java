@@ -14,7 +14,7 @@ public class Subset {
        
        for (int i = 0; i < k; i++){
            System.out.println(queue.dequeue());
-           System.out.println(queue.size());
+//           System.out.println(queue.size());
        }
        
    }
