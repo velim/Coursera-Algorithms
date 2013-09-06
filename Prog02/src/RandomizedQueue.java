@@ -8,7 +8,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // construct an empty randomized queue
     @SuppressWarnings("unchecked")
-	public RandomizedQueue() {
+    public RandomizedQueue() {
         s = (Item[]) new Object[1];
     }
 
@@ -32,7 +32,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     @SuppressWarnings("unchecked")
-	private void doublearray() {
+    private void doublearray() {
         Item[] newarray = (Item[]) new Object[s.length * 2];
         for (int i = 0; i < s.length; i++)
             newarray[i] = s[i];
@@ -41,17 +41,32 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // delete and return a random item
     public Item dequeue() {
+        if (cnt == 0)
+            throw new NoSuchElementException();
         int rand = StdRandom.uniform(cnt);
         Item item = s[rand];
         for (int i = rand; i < s.length - 1; i++)
             s[i] = s[i + 1];
         s[cnt - 1] = null;
         cnt--;
+        if (cnt < s.length / 4)
+            shrinkarray();
         return item;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void shrinkarray() {
+        Item[] newarray = (Item[]) new Object[s.length / 4];
+        for (int i = 0; i < cnt; i++)
+            newarray[i] = s[i];
+        s = newarray;
+
     }
 
     // return (but do not delete) a random item
     public Item sample() {
+        if (cnt == 0)
+            throw new NoSuchElementException();
         int rand = StdRandom.uniform(cnt);
         return s[rand];
     }

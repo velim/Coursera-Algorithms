@@ -11,9 +11,18 @@ public class TestDeque {
 		queue.addFirst("A");
 		queue.addFirst("B");
 		queue.addFirst("C");
-		assertEquals("testAddFirst", "A" , queue.removeLast());		
-		assertEquals("testAddFirst", "B" , queue.removeLast());
-		assertEquals("testAddFirst", "C" , queue.removeLast());
+		assertEquals("A", "A" , queue.removeLast());
+		queue.addFirst("D");
+		assertEquals("B", "B" , queue.removeLast());
+		assertEquals("C", "C" , queue.removeLast());
+		queue.addFirst("E");
+		queue.addFirst("F");
+		assertEquals("D", "D" , queue.removeLast());
+		assertEquals("E", "E" , queue.removeLast());
+		assertEquals("F", "F" , queue.removeLast());
+		queue.addFirst("G");		
+		assertEquals("G", "G" , queue.removeLast());
+		
 		assertEquals("size = 0", 0 , queue.size());
 	}
 	
