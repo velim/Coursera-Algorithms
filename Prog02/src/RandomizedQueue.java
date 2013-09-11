@@ -7,7 +7,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     private int cnt = 0;
 
     // construct an empty randomized queue
-    @SuppressWarnings("unchecked")
     public RandomizedQueue() {
         s = (Item[]) new Object[1];
     }
@@ -31,7 +30,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         s[cnt++] = item;
     }
 
-    @SuppressWarnings("unchecked")
     private void doublearray() {
         Item[] newarray = (Item[]) new Object[s.length * 2];
         for (int i = 0; i < s.length; i++)
@@ -45,18 +43,16 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             throw new NoSuchElementException();
         int rand = StdRandom.uniform(cnt);
         Item item = s[rand];
-        for (int i = rand; i < s.length - 1; i++)
-            s[i] = s[i + 1];
+        s[rand] = s[cnt - 1];
         s[cnt - 1] = null;
         cnt--;
-        if (cnt < s.length / 4)
+        if (cnt > 0 && cnt < (s.length / 4))
             shrinkarray();
         return item;
     }
 
-    @SuppressWarnings("unchecked")
     private void shrinkarray() {
-        Item[] newarray = (Item[]) new Object[s.length / 4];
+        Item[] newarray = (Item[]) new Object[cnt];
         for (int i = 0; i < cnt; i++)
             newarray[i] = s[i];
         s = newarray;
@@ -67,31 +63,32 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Item sample() {
         if (cnt == 0)
             throw new NoSuchElementException();
-        int rand = StdRandom.uniform(cnt);
+        int rand = StdRandom.uniform(s.length);
+        while (s[rand] == null)
+            rand = StdRandom.uniform(s.length);
         return s[rand];
     }
 
     // return an independent iterator over items in random order
     public Iterator<Item> iterator() {
         return new Iterator<Item>() {
-            private int i = 0;
 
-            @Override
-            public boolean hasNext() {
-                return (s.length != i && s[i] != null);
-            }
+            private boolean[] inner = new boolean[s.length];
+            private int tc = 0;
 
-            @Override
+            public boolean hasNext() { return tc < cnt; }
+
             public Item next() {
-                if (i == 0)
-                    throw new NoSuchElementException();
-                return s[i++];
+                if (!hasNext()) throw new NoSuchElementException();
+                int act = StdRandom.uniform(inner.length);
+                while (inner[act] || s[act] == null)
+                    act = StdRandom.uniform(inner.length);
+                inner[act] = true;
+                tc++;
+                return s[act];
             }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
+            public void remove() { throw new UnsupportedOperationException(); }
 
         };
     }

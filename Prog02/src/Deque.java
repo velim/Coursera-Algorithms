@@ -9,6 +9,7 @@ public class Deque<Item> implements Iterable<Item> {
     private class Node {
         private Item item;
         private Node next;
+        private Node prev;
     }
 
     // construct an empty deque
@@ -31,6 +32,8 @@ public class Deque<Item> implements Iterable<Item> {
         if (item == null)
             throw new NullPointerException();
         Node newnode = new Node();
+        if (first != null)
+            first.prev = newnode;
         newnode.item = item;
         newnode.next = first;
         if (first == null)
@@ -46,6 +49,7 @@ public class Deque<Item> implements Iterable<Item> {
         Node oldlast = last;
         last = new Node();
         last.item = item;
+        last.prev = oldlast;
         if (first == null)
             first = last;
         if (oldlast != null)
@@ -59,8 +63,10 @@ public class Deque<Item> implements Iterable<Item> {
             throw new NoSuchElementException();
         Item item = first.item;
         first = first.next;
+        if (first != null)
+            first.prev = null;
         cnt--;
-        if (cnt == 0){
+        if (cnt == 0) {
             first = null;
             last = null;
         }
@@ -71,14 +77,12 @@ public class Deque<Item> implements Iterable<Item> {
     public Item removeLast() {
         if (cnt == 0)
             throw new NoSuchElementException();
-        Node node = first;
         Item item = last.item;
-        while (node.next != null && node.next.next != null)
-            node = node.next;
-        last = node;
-        last.next = null;
+        last = last.prev;
+        if (last != null)
+            last.next = null;
         cnt--;
-        if (cnt == 0){
+        if (cnt == 0) {
             first = null;
             last = null;
         }
@@ -90,12 +94,10 @@ public class Deque<Item> implements Iterable<Item> {
         return new Iterator<Item>() {
             private Node current = first;
 
-            @Override
             public boolean hasNext() {
                 return current != null;
             }
 
-            @Override
             public Item next() {
                 if (current == null)
                     throw new NoSuchElementException();
@@ -104,7 +106,6 @@ public class Deque<Item> implements Iterable<Item> {
                 return item;
             }
 
-            @Override
             public void remove() {
                 throw new UnsupportedOperationException();
             }
